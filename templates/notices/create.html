@@ -1,0 +1,89 @@
+{% extends 'layouts/layout.html' %}
+{% block content %}
+
+    <!-- Content Header (Page header) -->
+    <section class="content-header">
+        <div class="container-fluid">
+            <div class="row mb-2">
+                <div class="col-sm-6">
+                    <h1>Создание рассылки</h1>
+                </div>
+                <div class="col-sm-6">
+                    <ol class="breadcrumb float-sm-right">
+                        <li class="breadcrumb-item"><a href="{% url 'main' %}">Home</a></li>
+                        <li class="breadcrumb-item"><a href="{% url 'notice:index' %}">Рассылки</a></li>
+                        <li class="breadcrumb-item active">Blank Page</li>
+                    </ol>
+                </div>
+            </div>
+        </div><!-- /.container-fluid -->
+    </section>
+
+    <!-- Main content -->
+    <section class="content">
+        <div class="container-fluid">
+            <div class="row">
+                <div class="col-12">
+                    <div class="card">
+                        {% if  messages  %}
+                            <div class="alert alert-danger">
+                                {% for message in  messages  %}
+                                    <ul class="list-unstyled">
+                                        {{ message }}
+                                    </ul>
+                                {% endfor %}
+                            </div>
+
+                        {% endif %}
+                        <div class="card-header">
+                            <h3 class="card-title">Новая рассылка</h3>
+                        </div>
+                        <!-- /.card-header -->
+
+                        <form role="form" method="post" action="{% url 'notice:storage' %}">
+                            {% csrf_token %}
+                            <div class="card-body">
+
+                                <div class="form-group">
+                                    <label for="content">Дата окончания рассылки: </label>
+                                    <input name='ended' type="date" required>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="content">Текст сообщения</label>
+                                    <textarea name="text" class="form-control" id="content" rows="7"
+                                              placeholder="Текст сообщения ..." required></textarea>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="filters">Фильтры</label>
+                                    <select name="filters" id="filters" class="select2" multiple="multiple"
+                                            data-placeholder="Выбор фильтров" style="width: 100%;" required>
+                                        {% for filter in filters %}
+                                            {% if filter.code == None %}
+                                                <option value="{{ filter.id }}">{{ filter.tag }}</option>
+                                            {% else %}
+                                                <option value="{{ filter.id }}">{{ filter.code }}</option>
+                                            {% endif %}
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <!-- /.card-body -->
+
+                            <div class="card-footer">
+                                <button type="submit" class="btn btn-primary">Создать</button>
+                            </div>
+                        </form>
+
+                    </div>
+                    <!-- /.card -->
+
+                </div>
+                <!-- /.col -->
+            </div>
+            <!-- /.row -->
+        </div><!-- /.container-fluid -->
+    </section>
+    <!-- /.content -->
+{% endblock content %}

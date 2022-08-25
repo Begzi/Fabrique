@@ -1,0 +1,100 @@
+
+{% load static %}
+    <!-- Main Sidebar Container -->
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+
+        <!-- Sidebar -->
+        <div class="sidebar">
+            <!-- Sidebar user (optional) -->
+            <div class="user-panel mt-3 pb-3 mb-3 d-flex">
+                <div class="image">
+                    <img src="{% static '/img/user2-160x160.jpg' %}" class="img-circle elevation-2"
+                         alt="User Image">
+                </div>
+                <div class="info">
+                    <a href="#" class="d-block">Echis Begzi</a>
+                </div>
+            </div>
+
+            <!-- Sidebar Menu -->
+            <nav class="mt-2">
+                <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
+                    data-accordion="false">
+                    <li class="nav-item">
+                        <a href="{% url 'main' %}" class="nav-link">
+                            <i class="nav-icon fas fa-home"></i>
+                            <p>Главная</p>
+                        </a>
+                    </li>
+
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-archive"></i>
+                            <p>
+                                Рассылки
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{% url 'notice:index' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Список рассылок</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'notice:create' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Создать рассылку</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-tags"></i>
+                            <p>
+                                Клиенты
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{% url 'client:index' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Список клиенты</p>
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="{% url 'client:create' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Добавить клиента</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+
+                    <li class="nav-item has-treeview">
+                        <a href="#" class="nav-link">
+                            <i class="nav-icon fas fa-edit"></i>
+                            <p>
+                                Сообщения
+                                <i class="right fas fa-angle-left"></i>
+                            </p>
+                        </a>
+                        <ul class="nav nav-treeview">
+                            <li class="nav-item">
+                                <a href="{% url 'message:index' %}" class="nav-link">
+                                    <i class="far fa-circle nav-icon"></i>
+                                    <p>Список сообщений</p>
+                                </a>
+                            </li>
+                        </ul>
+                    </li>
+                </ul>
+            </nav>
+            <!-- /.sidebar-menu -->
+        </div>
+        <!-- /.sidebar -->
+    </aside>
