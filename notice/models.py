@@ -43,7 +43,7 @@ from django.db import models
 
 class Filter(models.Model):
     code = models.CharField(verbose_name='Код мобильного оператора', max_length=5, null=True)
-    tag = models.CharField(verbose_name='Тэг', max_length=100, null=True)
+    tag = models.CharField(verbose_name='Тэг', max_length=15, null=True)
 
     def __str__(self):
         if self.code:
@@ -56,10 +56,11 @@ class Filter(models.Model):
         verbose_name_plural = 'Фильтры'
 
 class Notice(models.Model):
-    created = models.DateTimeField(verbose_name='Дата и время начала рассылки', auto_now_add=True)
+    created = models.DateField(verbose_name='Дата создания рассылки', auto_now_add=True)
     text = models.TextField(verbose_name='Текст сообщения')
 
-    ended = models.DateTimeField(verbose_name='Дата и время окончания рассылки')
+    started = models.DateField(verbose_name='Дата отправки рассылки')
+    ended = models.DateField(verbose_name='Дата окончания рассылки')
 
     def __str__(self):
         return str(self.created)

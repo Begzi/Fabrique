@@ -36,7 +36,7 @@
                                         <thead>
                                         <tr>
                                             <th style="width: 30px">#</th>
-                                            <th>Дата создания</th>
+                                            <th>Дата начала</th>
                                             <th>Дата окончания</th>
                                             <th>Фильтры</th>
                                             <th>Actions</th>
@@ -46,7 +46,7 @@
                                         {% for notice in notices %}
                                             <tr>
                                                 <td>{{ notice.id }}</td>
-                                                <td>{{ notice.created }}</td>
+                                                <td>{{ notice.started }}</td>
                                                 <td>{{ notice.ended }}</td>
                                                 <td> {% if notice.filter_table.all.count == 0  %}
                                                         Нет Фильтров

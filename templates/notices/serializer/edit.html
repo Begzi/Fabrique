@@ -1,0 +1,59 @@
+
+{% if  messages  %}
+    <div class="alert alert-danger">
+        {% for message in  messages  %}
+            <ul class="list-unstyled">
+                {{ message }}
+            </ul>
+        {% endfor %}
+    </div>
+
+{% endif %}
+
+<form role="form" method="post" >
+    <input type="hidden" name="_method" value="put" />
+    {% csrf_token %}
+    <div class="card-body">
+        <div class="form-group">
+            <label for="content">Дата окончания рассылки: </label>
+            <input name='ended' type="date" value="{{ notice.ended }}">
+        </div>
+
+        <div class="form-group">
+            <label for="content">Текст сообщения</label>
+            <textarea name="text" class="form-control" id="content" rows="7"
+                      placeholder="Текст сообщения ...">{{ notice.text }}</textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="filters">Фильтры</label>
+            <select name="filters" id="filters" class="select2" multiple="multiple"
+                    data-placeholder="Выбор фильтров" style="width: 100%;">
+                        {% for filter in filters %}
+                            {% if filter.code == None %}
+                                <option value="{{ filter.id }}"
+                                    {% for filter_check in notice.filter_table.all %}
+                                        {% if filter.id == filter_check.filter.id %}
+                                            selected
+                                        {% endif %}
+                                    {% endfor %}
+                                >{{ filter.tag }}</option>
+                            {% else %}
+                                <option value="{{ filter.id }}"
+                                    {% for filter_check in notice.filter_table.all %}
+                                        {% if filter.id == filter_check.filter.id %}
+                                            selected
+                                        {% endif %}
+                                    {% endfor %}
+                                >{{ filter.code }}</option>
+                            {% endif %}
+                        {% endfor %}
+            </select>
+        </div>
+    </div>
+    <!-- /.card-body -->
+
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary">Сохранить</button>
+    </div>
+</form>

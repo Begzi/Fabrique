@@ -1,0 +1,50 @@
+
+{% if  messages  %}
+    <div class="alert alert-danger">
+        {% for message in  messages  %}
+            <ul class="list-unstyled">
+                {{ message }}
+            </ul>
+        {% endfor %}
+    </div>
+
+{% endif %}
+<form role="form" method="post">
+    {% csrf_token %}
+    <div class="card-body">
+        <div class="form-group">
+            <label for="content">Дата начала рассылки: </label>
+            <input name='started' type="date" >
+        </div>
+
+        <div class="form-group">
+            <label for="content">Дата окончания рассылки: </label>
+            <input name='ended' type="date" >
+        </div>
+
+        <div class="form-group">
+            <label for="content">Текст сообщения</label>
+            <textarea name="text" class="form-control" id="content" rows="7"
+                      placeholder="Текст сообщения ..." ></textarea>
+        </div>
+
+        <div class="form-group">
+            <label for="filters">Фильтры</label>
+            <select name="filters" id="filters" class="select2" multiple="multiple"
+                    data-placeholder="Выбор фильтров" style="width: 100%;" >
+                {% for filter in filters %}
+                    {% if filter.code == None %}
+                        <option value="{{ filter.id }}">{{ filter.tag }}</option>
+                    {% else %}
+                        <option value="{{ filter.id }}">{{ filter.code }}</option>
+                    {% endif %}
+                {% endfor %}
+            </select>
+        </div>
+    </div>
+    <!-- /.card-body -->
+
+    <div class="card-footer">
+        <button type="submit" class="btn btn-primary">Создать</button>
+    </div>
+</form>

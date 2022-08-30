@@ -12,4 +12,8 @@ urlpatterns = [
     path('update<int:client_id>', update, name = 'update'),
     path('delete<int:client_id>', delete, name = 'delete'),
     path('seed', seed, name = 'seed'),
+    path('api/show', GetClientInfoView.as_view()),
+    path('api/create', GetClientWriteView.as_view()),
+    path('api/edit<int:id>', GetClientEditView.as_view()),
+    path('api/delete<int:id>', GetClientEditView.as_view()),
 ]

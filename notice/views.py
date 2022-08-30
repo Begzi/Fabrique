@@ -1,19 +1,27 @@
 import json
 from django.shortcuts import render, redirect, HttpResponse
+from rest_framework.response import Response
+from rest_framework.views import APIView
+
+from client.models import Client
 from .models import Filter, Notice, Notice_Filter
+from message.models import Message
 from .forms import NoticeValid
 from django.core.paginator import Paginator
-import datetime
+from datetime import date, datetime
 from django.contrib import messages
+from main.views import *
+from .serializers import NoticeWriteSerializer, NoticeViewSerializer
+from rest_framework import status
+from rest_framework.renderers import TemplateHTMLRenderer
 
-
+@check_notice_for_send_message_decorator
 def index(request):
 
     notices = Notice.objects.select_related().all()
-    print(notices)
-    print(notices[0].filter_table.all()[0].filter.id)
     return render(request, 'notices/index.html', {'notices' : notices})
 
+@check_notice_for_send_message_decorator
 def create(request):
     context={}
     filters = Filter.objects.all()
@@ -21,12 +29,13 @@ def create(request):
     return render(request, 'notices/create.html', context)
 
 def storage(request):
-    notice_valid = NoticeValid(request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
+    notice_valid = NoticeValid(request.POST['started'],request.POST['ended'], request.POST['text'], request.POST.getlist('filters'))
     context = notice_valid.is_valid()
     if context['error'] == False:
         notice = Notice()
-        notice.ended = request.POST['ended']
+        notice.ended = datetime.strptime(request.POST['ended'], '%Y-%m-%d').date()
         notice.text = request.POST['text']
+        notice.started = datetime.strptime(request.POST['started'], '%Y-%m-%d').date()
         notice.save()
 
         for filter in request.POST.getlist('filters'):
@@ -35,7 +44,7 @@ def storage(request):
             notice_filter.notice_id = notice.id
             notice_filter.save()
 
-
+        create_messages(notice)
         return redirect('notice:index')
 
     for message in context['messages']:
@@ -47,16 +56,18 @@ def edit(request, notice_id):
     notice = Notice.objects.get(id = notice_id)
     filters = Filter.objects.all()
     context['filters'] = filters
-    notice.ended = str((notice.ended).date())
+    notice.ended = str((notice.ended).strftime('%Y-%m-%d'))
+    notice.started = str((notice.started).strftime('%Y-%m-%d'))
     context['notice'] = notice
     return render(request, 'notices/edit.html', context)
 
 def update(request, notice_id):
-    notice_valid = NoticeValid(request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
+    notice_valid = NoticeValid(request.POST['started'], request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
     context = notice_valid.is_valid()
     if context['error'] == False:
         notice = Notice.objects.get(id = notice_id)
         notice.ended = request.POST['ended']
+        notice.started = request.POST['started']
         notice.text = request.POST['text']
         notice.save()
 
@@ -89,3 +100,88 @@ def update(request, notice_id):
 def delete(request, notice_id):
     Notice.objects.filter(id = notice_id).delete()
     return redirect('notice:index')
+
+
+
+class GetNoticeInfoView(APIView):
+    serializer_class = NoticeWriteSerializer
+    model = Notice
+
+    def get(self, request):
+        queryset = self.model.objects.all()
+        serializer_for_queryset = self.serializer_class(
+            instance=queryset,
+            many=True
+        )
+        return Response(serializer_for_queryset.data)
+
+class GetNoticeWriteInfoView(APIView):
+    renderer_classes = [TemplateHTMLRenderer]
+    template_name = 'notices/serializer/create.html'
+    serializer_class = NoticeWriteSerializer
+    model = Notice
+
+    def get(self, request):
+        context={}
+        filters = Filter.objects.all()
+        context['filters'] = filters
+        return Response(context)
+
+    def post(self, request):
+        notice_valid = NoticeValid(request.POST['started'], request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
+        context = notice_valid.is_valid()
+        if context['error']:
+            return Response(context)
+        else:
+            serializer_for_writing = self.serializer_class(data=request.data)
+            serializer_for_writing.create(request.POST['started'],request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
+        return Response(context)
+
+
+class GetNoticeEditInfoView(APIView):
+    serializer_class = NoticeWriteSerializer
+    model = Notice
+
+    def get(self, request, id):
+        queryset = self.model.objects.all()
+        serializer_for_queryset = self.serializer_class(
+            instance=queryset,
+            many=True
+        )
+        return Response(serializer_for_queryset.data)
+
+    def put(self, request, id):
+        notice_valid = NoticeValid(request.POST['started'], request.POST['ended'], request.POST['text'], [61,62])
+        context = notice_valid.is_valid()
+        if context['error']:
+            return Response(context)
+        else:
+            serializer_for_writing = self.serializer_class(data=(request.POST['ended'], request.POST['text'], [61,62]))
+            notice = Notice.objects.get(id=id)
+            context = serializer_for_writing.update(notice, request.POST['ended'], request.POST['text'], [61,62])
+        return Response(context)
+
+
+    def delete(self, request, id):
+
+        try:
+            instance = Notice.objects.get(id=id)
+        except:
+            return Response({"error": "Такого Notice не существует"})
+
+        instance.delete()
+
+        return Response({'messages': ['Успешное удаление']})
+
+
+
+class GetNoticeViewInfoView(APIView):
+    serializer_class = NoticeViewSerializer
+    model = Notice
+    def get(self, request, id):
+        queryset = self.model.objects.filter(id=id).all()
+        serializer_for_queryset = self.serializer_class(
+            instance=queryset,
+            many=True
+        )
+        return Response(serializer_for_queryset.data)

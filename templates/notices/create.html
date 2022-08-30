@@ -43,6 +43,10 @@
                         <form role="form" method="post" action="{% url 'notice:storage' %}">
                             {% csrf_token %}
                             <div class="card-body">
+                                <div class="form-group">
+                                    <label for="content">Дата начала рассылки: </label>
+                                    <input name='started' type="date" required>
+                                </div>
 
                                 <div class="form-group">
                                     <label for="content">Дата окончания рассылки: </label>
