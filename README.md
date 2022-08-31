@@ -33,15 +33,15 @@ psycopg2        2.9.3
 Маршрутизация, пример Notice(Рассылки)
 app_name = 'notice'
 urlpatterns = [
-    path('', index, name = 'index'),  
-    path('create', create, name = 'create'),
-    path('storage', storage, name = 'storage'),
-    path('edit<int:notice_id>', edit, name = 'edit'),
-    path('update<int:notice_id>', update, name = 'update'),
-    path('delete<int:notice_id>', delete, name = 'delete'),
-    path('api/show', GetNoticeInfoView.as_view()),
-    path('api/create', GetNoticeWriteInfoView.as_view()),
-    path('api/edit<int:id>', GetNoticeEditInfoView.as_view()),
-    path('api/delete<int:id>', GetNoticeEditInfoView.as_view()),
-    path('api/view<int:id>', GetNoticeViewInfoView.as_view()),
+    path('', index, name = 'index'),    #Django
+    path('create', create, name = 'create'),   #Django
+    path('storage', storage, name = 'storage'),   #Django
+    path('edit<int:notice_id>', edit, name = 'edit'),   #Django
+    path('update<int:notice_id>', update, name = 'update'),   #Django
+    path('delete<int:notice_id>', delete, name = 'delete'),   #Django
+    path('api/show', GetNoticeInfoView.as_view()),    #Django Rest Framework
+    path('api/create', GetNoticeWriteInfoView.as_view()),    #Django Rest Framework
+    path('api/edit<int:id>', GetNoticeEditInfoView.as_view()),    #Django Rest Framework
+    path('api/delete<int:id>', GetNoticeEditInfoView.as_view()),    #Django Rest Framework
+    path('api/view<int:id>', GetNoticeViewInfoView.as_view()),    #Django Rest Framework
 ]
