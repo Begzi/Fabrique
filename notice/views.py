@@ -6,12 +6,12 @@ from rest_framework.views import APIView
 from client.models import Client
 from .models import Filter, Notice, Notice_Filter
 from message.models import Message
-from .forms import NoticeValid
+from .forms import *
 from django.core.paginator import Paginator
 from datetime import date, datetime
 from django.contrib import messages
 from main.views import *
-from .serializers import NoticeWriteSerializer, NoticeViewSerializer
+from .serializers import *
 from rest_framework import status
 from rest_framework.renderers import TemplateHTMLRenderer
 
@@ -29,8 +29,7 @@ def create(request):
     return render(request, 'notices/create.html', context)
 
 def storage(request):
-    notice_valid = NoticeValid(request.POST['started'],request.POST['ended'], request.POST['text'], request.POST.getlist('filters'))
-    context = notice_valid.is_valid()
+    context = is_valid(request.POST['started'],request.POST['ended'], request.POST['text'], request.POST.getlist('filters'))
     if context['error'] == False:
         notice = Notice()
         notice.ended = datetime.strptime(request.POST['ended'], '%Y-%m-%d').date()
@@ -62,8 +61,9 @@ def edit(request, notice_id):
     return render(request, 'notices/edit.html', context)
 
 def update(request, notice_id):
-    notice_valid = NoticeValid(request.POST['started'], request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
-    context = notice_valid.is_valid()
+    context = is_valid(request.POST['started'], request.POST['ended'], request.POST['text'],
+                       request.POST.getlist('filters'))
+
     if context['error'] == False:
         notice = Notice.objects.get(id = notice_id)
         notice.ended = request.POST['ended']
@@ -116,8 +116,6 @@ class GetNoticeInfoView(APIView):
         return Response(serializer_for_queryset.data)
 
 class GetNoticeWriteInfoView(APIView):
-    renderer_classes = [TemplateHTMLRenderer]
-    template_name = 'notices/serializer/create.html'
     serializer_class = NoticeWriteSerializer
     model = Notice
 
@@ -128,8 +126,9 @@ class GetNoticeWriteInfoView(APIView):
         return Response(context)
 
     def post(self, request):
-        notice_valid = NoticeValid(request.POST['started'], request.POST['ended'],request.POST['text'], request.POST.getlist('filters'))
-        context = notice_valid.is_valid()
+        context = is_valid(request.POST['started'], request.POST['ended'], request.POST['text'],
+                           request.POST.getlist('filters'))
+
         if context['error']:
             return Response(context)
         else:
@@ -139,7 +138,7 @@ class GetNoticeWriteInfoView(APIView):
 
 
 class GetNoticeEditInfoView(APIView):
-    serializer_class = NoticeWriteSerializer
+    serializer_class = NoticeEditSerializer
     model = Notice
 
     def get(self, request, id):
@@ -151,16 +150,18 @@ class GetNoticeEditInfoView(APIView):
         return Response(serializer_for_queryset.data)
 
     def put(self, request, id):
-        notice_valid = NoticeValid(request.POST['started'], request.POST['ended'], request.POST['text'], [61,62])
-        context = notice_valid.is_valid()
-        if context['error']:
-            return Response(context)
-        else:
-            serializer_for_writing = self.serializer_class(data=(request.POST['ended'], request.POST['text'], [61,62]))
-            notice = Notice.objects.get(id=id)
-            context = serializer_for_writing.update(notice, request.POST['ended'], request.POST['text'], [61,62])
-        return Response(context)
+        try:
+            instance = Notice.objects.get(id=id)
+        except:
+            return Response({"error": "Такого Notice не существует"})
 
+        serializer_for_updating = self.serializer_class(data=request.data, instance=instance)
+        serializer_for_updating.is_valid(raise_exception=True)
+        serializer_for_updating.save()
+        return Response(
+            data=serializer_for_updating.data,
+            status=status.HTTP_202_ACCEPTED
+        )
 
     def delete(self, request, id):
 

@@ -28,6 +28,7 @@ urlpatterns = [
     path('api/show', GetNoticeInfoView.as_view()),
     path('api/create', GetNoticeWriteInfoView.as_view()),
     path('api/edit<int:id>', GetNoticeEditInfoView.as_view()),
+    path('api/delete<int:id>', GetNoticeEditInfoView.as_view()),
     path('api/view<int:id>', GetNoticeViewInfoView.as_view()),
     # path(r'^swagger(?P<format>\.json|\.yaml)$', schema_view.without_ui(cache_timeout=0), name='schema-json'),
     # path('api/delete<int:id>', GetNoticeUpdateView.as_view()),

@@ -1,13 +1,9 @@
 from datetime import date
 
-from django.db import models
 from rest_framework import serializers
-from rest_framework.exceptions import ValidationError
-from rest_framework.validators import UniqueTogetherValidator
-from django.core.validators import MaxValueValidator
+from notice.forms import *
 
 from .models import Filter, Notice, Notice_Filter
-from message.models import Message
 from client.models import Client
 
 
@@ -57,32 +53,51 @@ class NoticeWriteSerializer(serializers.Serializer):
 
         return {'messages': ['Успешное добавление']}
 
-    def update(self, notice, ended, text, filters):
-        notice.text = text
-        notice.ended = ended
-        notice.save()
+class NoticeEditSerializer(serializers.Serializer):
+    text = serializers.CharField()
+    ended = serializers.DateField(
+        format='%d.%m.%Y',
+        input_formats=['%d.%m.%Y', 'iso-8601'],
+    )
+    started = serializers.DateField(
+        format='%d.%m.%Y',
+        input_formats=['%d.%m.%Y', 'iso-8601'],
+    )
+    filters = serializers.ListField(child=serializers.IntegerField())
 
 
-        filters_table = notice.filter_table.all()
-        filters_past = []
-        for filter_table in filters_table:
-            filters_past.append(filter_table.filter.id)
+    def validate(self, attrs):
+        return attrs
 
+    def update(self, instance, validated_data):
+        context = is_valid(str(validated_data['started']), str(validated_data['ended']), validated_data['text'], validated_data['filters'])
 
-        for filter in filters:
-            if int(filter) in filters_past:
-                filters_past.remove(int(filter))
-            else:
-                notice_filter = Notice_Filter()
-                notice_filter.filter_id = int(filter)
-                notice_filter.notice_id = notice.id
-                notice_filter.save()
+        if context['error']  == False:
+            instance.text = validated_data['text']
+            instance.ended = validated_data['ended']
+            instance.started = validated_data['started']
+            instance.save()
+            filters_table = instance.filter_table.all()
+            filters_past = []
+            for filter_table in filters_table:
+                filters_past.append(filter_table.filter.id)
 
-        if len(filters_past) != 0:
-            for bad_filter in filters_past:
-                Notice_Filter.objects.filter(filter_id = bad_filter).delete()
+            for filter in validated_data['filters']:
+                if int(filter) in filters_past:
+                    filters_past.remove(int(filter))
+                else:
+                    notice_filter = Notice_Filter()
+                    notice_filter.filter_id = int(filter)
+                    notice_filter.notice_id = instance.id
+                    notice_filter.save()
 
-        return {'messages': ['Успешное изменено']}
+            if len(filters_past) != 0:
+                for bad_filter in filters_past:
+                    Notice_Filter.objects.filter(filter_id = bad_filter).delete()
+
+            return {'messages': ['Успешное изменено']}
+        else:
+            return context
 
 class NoticeViewSerializer(serializers.Serializer):
     text = serializers.CharField()
